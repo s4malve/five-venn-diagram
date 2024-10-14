@@ -9,8 +9,85 @@
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro</title>
+		<style>
+			html,
+			body,
+			#container {
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+		</style>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<form id="form">
+			<input
+				type="file"
+				name="file"
+				id="file"
+				required
+				accept="text/csv"
+			/>
+			<button type="submit">Updload File</button>
+			<span id="message"></span>
+		</form>
+		<div id="container"></div>
 	</body>
 </html>
+<script>
+	import { actions, isInputError } from "astro:actions";
+	import anychart from "anychart";
+
+	const $ = (tag: string) => document.querySelector(tag);
+
+	const $form = $("#form") as HTMLFormElement;
+	const $message = $("#message") as HTMLSpanElement;
+
+	const showMessage = (message: string) =>
+		($message.textContent = message);
+
+	$form?.addEventListener("submit", async (event) => {
+		event.preventDefault();
+
+		const formData = new FormData($form);
+		const { error, data } =
+			await actions.validateFileUpload(formData);
+		showMessage("Loading...");
+
+		if (error) {
+			if (isInputError(error)) {
+				const fileErrors =
+					error.fields?.file?.join(", ");
+
+				if (fileErrors) {
+					showMessage(fileErrors);
+				}
+			} else {
+				$message.textContent = error.message;
+			}
+		} else {
+			showMessage("");
+			const chart = anychart.venn(data);
+
+			chart.container("container");
+
+			// configure labels of circles
+			chart.labels().format("{%name}");
+
+			// configure labels of intersections
+			chart.intersections().labels().format("{%name}");
+
+			// configure tooltips of circles
+			chart.tooltip().fontSize(20).format("{%tooltipDesc}");
+
+			// configure tooltips of intersections
+			chart.intersections()
+				.tooltip()
+				.fontSize(20)
+				.format("{%tooltipDesc}");
+
+			chart.draw();
+		}
+	});
+</script>
