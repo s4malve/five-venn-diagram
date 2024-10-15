@@ -9,6 +9,11 @@
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro</title>
+		<script
+			async
+			is:inline
+			src="https://cdn.anychart.com/releases/8.13.0/themes/dark_glamour.min.js"
+		></script>
 		<style>
 			html,
 			body,
@@ -21,53 +26,47 @@
 		</style>
 	</head>
 	<body>
-		<form id="form">
-			<input
-				type="file"
-				name="file"
-				id="file"
-				required
-				accept="text/csv"
-			/>
-			<button type="submit">Updload File</button>
+		<div id="message-box">
 			<span id="message"></span>
-		</form>
+		</div>
 		<div id="container"></div>
 	</body>
 </html>
 <script>
-	import { actions, isInputError } from "astro:actions";
 	import anychart from "anychart";
+	import { actions } from "astro:actions";
 
-	const $ = (tag: string) => document.querySelector(tag);
+	const { error, data } = await actions.showDiagram();
 
-	const $form = $("#form") as HTMLFormElement;
-	const $message = $("#message") as HTMLSpanElement;
+	const $messageBox = document.querySelector("#message-box")!;
+	const $message = document.querySelector("#message")!;
+	const boxErrorStyles = [
+		"position:absolute",
+		"inset:0",
+		"background-color:rgba(2,21,38,0.9)",
+		"display:grid",
+		"place-items:center",
+		"z-index:99999",
+	];
+	const messageErrorStyles = [
+		"color:#d21312",
+		"font-size:28px",
+		"font-weight:800",
+	];
 
-	const showMessage = (message: string) =>
-		($message.textContent = message);
-
-	$form?.addEventListener("submit", async (event) => {
-		event.preventDefault();
-
-		const formData = new FormData($form);
-		const { error, data } =
-			await actions.validateFileUpload(formData);
-		showMessage("Loading...");
-
+	anychart.onDocumentReady(function () {
 		if (error) {
-			if (isInputError(error)) {
-				const fileErrors =
-					error.fields?.file?.join(", ");
-
-				if (fileErrors) {
-					showMessage(fileErrors);
-				}
-			} else {
-				$message.textContent = error.message;
-			}
+			$messageBox?.classList.add(...boxErrorStyles);
+			$message?.classList.add(...messageErrorStyles);
+			$message.textContent = error.message;
 		} else {
-			showMessage("");
+			$messageBox?.classList.remove(...boxErrorStyles);
+			$message?.classList.remove(...messageErrorStyles);
+			// apply coffee theme
+			anychart.theme(anychart.themes.darkGlamour);
+
+			// apply dark blue theme
+			//anychart.theme(anychart.themes.darkBlue);
 			const chart = anychart.venn(data);
 
 			chart.container("container");
@@ -79,12 +78,20 @@
 			chart.intersections().labels().format("{%name}");
 
 			// configure tooltips of circles
-			chart.tooltip().fontSize(20).format("{%tooltipDesc}");
+			chart.tooltip()
+				.fontSize(20)
+				.titleFormat("{%tooltipTitle}")
+				.format("{%tooltipDesc}");
 
 			// configure tooltips of intersections
 			chart.intersections()
 				.tooltip()
 				.fontSize(20)
+				.titleFormat("{%tooltipTitle}")
+				.format("{%tooltipDesc}");
+
+			chart.tooltip()
+				.titleFormat("{%tooltipTitle}")
 				.format("{%tooltipDesc}");
 
 			chart.draw();
