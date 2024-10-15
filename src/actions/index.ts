@@ -1,11 +1,12 @@
 import { defineAction } from 'astro:actions';
 import fs from 'node:fs'
 import { parse } from 'csv-parse';
+import path from 'node:path';
 
 const processFile = async () => {
 	const records = [];
 	const parser = fs
-		.createReadStream(new URL("../../data.csv", import.meta.url,))
+		.createReadStream(path.join(process.cwd(), 'data.csv'))
 		.pipe(parse({
 			// CSV options if any
 		}));
