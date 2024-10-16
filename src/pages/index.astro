@@ -3,7 +3,7 @@ import { actions } from "astro:actions";
 const vennImg = "/venn.webp";
 
 const { error, data } = await actions.showDiagram();
-const metaImg = new URL(vennImg, Astro.url);
+const metaImg = new URL("/venn-meta.png", Astro.url);
 ---
 
 <html lang="en">
