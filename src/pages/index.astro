@@ -1,5 +1,9 @@
 ---
+import { actions } from "astro:actions";
+const vennImg = "/venn.webp";
 
+const { error, data } = await actions.showDiagram();
+const metaImg = new URL(vennImg, Astro.url);
 ---
 
 <html lang="en">
@@ -8,93 +12,136 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-		<script
-			async
-			is:inline
-			src="https://cdn.anychart.com/releases/8.13.0/themes/dark_glamour.min.js"
-		></script>
-		<style>
-			html,
-			body,
-			#container {
-				width: 100%;
-				height: 100%;
-				margin: 0;
-				padding: 0;
-			}
-		</style>
+		<meta property="og:image" content={metaImg} />
+		<meta property="twitter:image" content={metaImg} />
+
+		<title>Sponges Data</title>
 	</head>
 	<body>
-		<div id="message-box">
-			<span id="message"></span>
+		<div
+			class="grid grid-cols-1 grid-rows-[auto_1fr] lg:grid-cols-2 lg:grid-rows-1 lg:h-screen lg:overflow-hidden"
+		>
+			<div
+				class="h-auto grid place-items-center row-start-2 row-end-3 lg:row-start-1 lg:row-end-2 w-full"
+			>
+				<img
+					src={vennImg}
+					alt=""
+					class="w-full object-contain"
+				/>
+			</div>
+			{
+				error ? (
+					<div
+						id="message-box"
+						class="w-full h-full grid place-items-center"
+					>
+						<span
+							id="message"
+							class="text-red-500 text-3xl font-bold"
+						/>
+					</div>
+				) : (
+					<div class="relative overflow-x-auto shadow-md sm:rounded-lg row-start-1 row-end-2 lg:col-start-2 lg:col-end-3">
+						<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+							<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky z-10 top-0">
+								<tr>
+									<th
+										scope="col"
+										class="px-6 py-3"
+									>
+										Group
+										ID
+									</th>
+									<th
+										scope="col"
+										class="px-6 py-3"
+									>
+										Names
+									</th>
+									<th
+										scope="col"
+										class="px-6 py-3"
+									>
+										Species
+									</th>
+									<th
+										scope="col"
+										class="px-6 py-3"
+									>
+										Total
+										species
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								{data.map(
+									(
+										group,
+									) => (
+										<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+											<th
+												scope="row"
+												class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+											>
+												{group.id.join(
+													", ",
+												)}
+											</th>
+											<td class="px-6 py-4">
+												{group.name.map(
+													(
+														n,
+														idx,
+													) => (
+														<span class="block whitespace-nowrap">
+															{
+																group
+																	.id[
+																	idx
+																]
+															}
+
+															.{" "}
+															{
+																n
+															}
+														</span>
+													),
+												)}
+											</td>
+											<td class="px-6 py-4">
+												{group.species.map(
+													(
+														s,
+														idx,
+													) => (
+														<span class="block whitespace-nowrap">
+															{idx +
+																1}
+
+															.{" "}
+															{s.species ??
+																"No Species"}
+														</span>
+													),
+												)}
+											</td>
+											<td class="px-6 py-4">
+												{
+													group
+														.species
+														.length
+												}
+											</td>
+										</tr>
+									),
+								)}
+							</tbody>
+						</table>
+					</div>
+				)
+			}
 		</div>
-		<div id="container"></div>
 	</body>
 </html>
-<script>
-	import anychart from "anychart";
-	import { actions } from "astro:actions";
-
-	const { error, data } = await actions.showDiagram();
-
-	const $messageBox = document.querySelector("#message-box")!;
-	const $message = document.querySelector("#message")!;
-	const boxErrorStyles = [
-		"position:absolute",
-		"inset:0",
-		"background-color:rgba(2,21,38,0.9)",
-		"display:grid",
-		"place-items:center",
-		"z-index:99999",
-	];
-	const messageErrorStyles = [
-		"color:#d21312",
-		"font-size:28px",
-		"font-weight:800",
-	];
-
-	anychart.onDocumentReady(function () {
-		if (error) {
-			$messageBox?.classList.add(...boxErrorStyles);
-			$message?.classList.add(...messageErrorStyles);
-			$message.textContent = error.message;
-		} else {
-			$messageBox?.classList.remove(...boxErrorStyles);
-			$message?.classList.remove(...messageErrorStyles);
-			// apply coffee theme
-			anychart.theme(anychart.themes.darkGlamour);
-
-			// apply dark blue theme
-			//anychart.theme(anychart.themes.darkBlue);
-			const chart = anychart.venn(data);
-
-			chart.container("container");
-
-			// configure labels of circles
-			chart.labels().format("{%name}");
-
-			// configure labels of intersections
-			chart.intersections().labels().format("{%name}");
-
-			// configure tooltips of circles
-			chart.tooltip()
-				.fontSize(20)
-				.titleFormat("{%tooltipTitle}")
-				.format("{%tooltipDesc}");
-
-			// configure tooltips of intersections
-			chart.intersections()
-				.tooltip()
-				.fontSize(20)
-				.titleFormat("{%tooltipTitle}")
-				.format("{%tooltipDesc}");
-
-			chart.tooltip()
-				.titleFormat("{%tooltipTitle}")
-				.format("{%tooltipDesc}");
-
-			chart.draw();
-		}
-	});
-</script>
