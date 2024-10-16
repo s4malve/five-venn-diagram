@@ -17,9 +17,6 @@ importers:
       '@astrojs/vercel':
         specifier: ^7.8.1
         version: 7.8.1(astro@4.16.2(@types/node@22.7.5)(rollup@4.24.0)(typescript@5.6.3))
-      anychart:
-        specifier: ^8.13.0
-        version: 8.13.0
       astro:
         specifier: ^4.16.2
         version: 4.16.2(@types/node@22.7.5)(rollup@4.24.0)(typescript@5.6.3)
@@ -745,9 +742,6 @@ packages:
 
   any-promise@1.3.0:
     resolution: {integrity: sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A==}
-
-  anychart@8.13.0:
-    resolution: {integrity: sha512-tl/VrD5NiW04uZEH1bY5AVR+G39REAlf5O8FBWRmPv3rU0rytwhOY42kaJWvrXi+TTK5MatxIGDyheBw66wXZg==}
 
   anymatch@3.1.3:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
@@ -3115,8 +3109,6 @@ snapshots:
   ansi-styles@6.2.1: {}
 
   any-promise@1.3.0: {}
-
-  anychart@8.13.0: {}
 
   anymatch@3.1.3:
     dependencies:
