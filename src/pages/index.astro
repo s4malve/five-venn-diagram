@@ -20,7 +20,7 @@ const metaImg = new URL("/venn-meta.png", Astro.url);
 		</style>
 	</head>
 	<body
-		class="bg-gray-950 min-h-screen overflow-x-hidden overflow-y-auto grid place-items-center w-full"
+		class="bg-gray-950 min-h-screen overflow-x-hidden overflow-y-auto grid place-items-center w-full p-6"
 	>
 		<div
 			id="tooltip"
@@ -47,6 +47,7 @@ const metaImg = new URL("/venn-meta.png", Astro.url);
 	let tooltipX = 0,
 		tooltipY = 0;
 	let isMouseOverTooltip = false;
+	const $svgVenn = $("#venn")!;
 
 	const addTooltipStyles = () => {
 		$tooltip.classList.remove(...hideTooltipStyles);
@@ -146,8 +147,17 @@ const metaImg = new URL("/venn-meta.png", Astro.url);
 
 	const onMouseMove = (e: MouseEvent) => {
 		if (!isMouseOverTooltip) {
-			mouseX = e.clientX + 30;
-			mouseY = e.clientY - 10 - $tooltip.clientHeight;
+			const isOutsideSvgVenn =
+				e.clientY >= document.body.clientHeight ||
+				e.clientX >= document.body.clientWidth;
+
+			if (isOutsideSvgVenn) {
+				mouseX = $svgVenn.clientWidth;
+				mouseY = $svgVenn.clientHeight;
+			} else {
+				mouseX = e.clientX + 30;
+				mouseY = e.clientY - 10 - $tooltip.clientHeight;
+			}
 		}
 
 		const windowHeight = window.innerHeight;
