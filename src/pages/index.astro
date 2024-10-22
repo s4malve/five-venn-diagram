@@ -147,27 +147,34 @@ const metaImg = new URL("/venn-meta.png", Astro.url);
 
 	const onMouseMove = (e: MouseEvent) => {
 		if (!isMouseOverTooltip) {
-			const isOutsideSvgVenn =
-				e.clientY >= document.body.clientHeight ||
-				e.clientX >= document.body.clientWidth;
-
-			if (isOutsideSvgVenn) {
-				mouseX = $svgVenn.clientWidth;
-				mouseY = $svgVenn.clientHeight;
-			} else {
-				mouseX = e.clientX + 30;
-				mouseY = e.clientY - 10 - $tooltip.clientHeight;
-			}
+			mouseX = e.clientX + 30;
+			mouseY = e.clientY - $tooltip.clientHeight;
 		}
+		const windowWidth = window.innerWidth; // Visible width of the viewport
+		const windowHeight = window.innerHeight; // Visible height of the viewport
+		const tooltipRect = $tooltip.getBoundingClientRect(); // Tooltip dimensions relative to viewport
 
-		const windowHeight = window.innerHeight;
-		const divHeight = $tooltip.offsetHeight;
+		const divHeight = tooltipRect.height;
+		const divWidth = tooltipRect.width;
 
+		// Prevent tooltip from going off the top of the viewport
 		if (mouseY < 0) {
 			mouseY = 0;
 		}
+
+		// Prevent tooltip from going off the bottom of the viewport
 		if (mouseY + divHeight > windowHeight) {
 			mouseY = windowHeight - divHeight;
+		}
+
+		// Prevent tooltip from going off the left of the viewport
+		if (mouseX < 0) {
+			mouseX = 0;
+		}
+
+		// Prevent tooltip from going off the right of the viewport
+		if (mouseX + divWidth > windowWidth) {
+			mouseX = windowWidth - divWidth;
 		}
 	};
 
